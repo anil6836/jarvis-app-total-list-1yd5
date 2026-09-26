@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f7f4">
+  <title>Total List</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f4;
+      --surface: #ffffff;
+      --surface-soft: #eef1eb;
+      --ink: #20251f;
+      --muted: #7d857b;
+      --line: #e8ebe5;
+      --accent: #3d7457;
+      --accent-dark: #2e6046;
+      --accent-soft: #e5efe7;
+      --danger: #b84d47;
+      --shadow: 0 8px 24px rgba(34, 48, 37, .055);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding-top: var(--safe-top);
+      background:
+        radial-gradient(ellipse at 95% 4%, rgba(220, 234, 218, .45), transparent 34%),
+        var(--bg);
+    }
+
+    .topbar {
+      min-height: 64px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 10px rgba(61, 116, 87, .22);
+    }
+
+    .brand-mark svg { width: 20px; height: 20px; }
+    .brand-name { font-size: 17px; font-weight: 750; letter-spacing: -.35px; }
+    .brand-caption {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .35px;
+    }
+
+    .intro {
+      padding: 17px 22px 18px;
+      flex: 0 0 auto;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 11px;
+      line-height: 1.2;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(27px, 7vw, 34px);
+      line-height: 1.12;
+      letter-spacing: -1.25px;
+      font-weight: 760;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .summary {
+      margin: 0 22px 19px;
+      padding: 15px 17px;
+      border: 1px solid rgba(224, 231, 222, .9);
+      border-radius: 19px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: rgba(255, 255, 255, .82);
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .stat + .stat {
+      border-left: 1px solid var(--line);
+      padding-left: 18px;
+      margin-left: 12px;
+    }
+
+    .stat-icon {
+      flex: 0 0 auto;
+      width: 37px;
+      height: 37px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .stat-icon.done { color: #657764; background: #edf0e9; }
+    .stat-icon svg { width: 18px; height: 18px; }
+    .stat-number { display: block; font-size: 20px; line-height: 1; font-weight: 760; letter-spacing: -.6px; }
+    .stat-label { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 650; white-space: nowrap; }
+
+    .list-section {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 0 22px;
+    }
+
+    .list-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 43px;
+      margin-bottom: 8px;
+      flex: 0 0 auto;
+    }
+
+    .section-title { font-size: 15px; font-weight: 750; letter-spacing: -.2px; }
+    .clear-button {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 8px 0 8px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .clear-button:active { opacity: .65; }
+    .clear-button[hidden] { display: none; }
+
+    .filters {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 0 13px;
+      flex: 0 0 auto;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+
+    .filter {
+      min-height: 34px;
+      padding: 0 14px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: var(--surface);
+      color: #747c72;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .18s, color .18s, transform .18s;
+    }
+    .filter:active { transform: scale(.96); }
+    .filter.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 3px 9px rgba(61, 116, 87, .18);
+    }
+
+    .task-list {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 1px 1px 10px;
+      scrollbar-width: none;
+      overscroll-behavior: contain;
+    }
+    .task-list::-webkit-scrollbar { display: none; }
+
+    .task-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 66px;
+      padding: 12px 11px 12px 13px;
+      margin-bottom: 9px;
+      border: 1px solid rgba(231, 235, 228, .95);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 3px 12px rgba(35, 47, 37, .035);
+      animation: arrive .24s ease both;
+      transition: opacity .18s, transform .18s;
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .check-button {
+      width: 28px;
+      height: 34px;
+      flex: 0 0 28px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .check-circle {
+      width: 22px;
+      height: 22px;
+      border: 1.7px solid #c9d0c7;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: white;
+      transition: background .2s, border-color .2s, transform .2s;
+    }
+    .check-circle svg { width: 13px; height: 13px; opacity: 0; transform: scale(.65); transition: .18s; }
+    .check-button:active .check-circle { transform: scale(.9); }
+    .task-card.is-done .check-circle { background: var(--accent); border-color: var(--accent); }
+    .task-card.is-done .check-circle svg { opacity: 1; transform: scale(1); }
+
+    .task-text {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 5px 0;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 570;
+      overflow-wrap: anywhere;
+      transition: color .2s;
+    }
+    .task-card.is-done .task-text { color: #99a097; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+
+    .task-actions { display: flex; align-items: center; gap: 1px; }
+    .icon-button {
+      width: 34px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 11px;
+      padding: 0;
+      background: transparent;
+      color: #8b9389;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .icon-button svg { width: 17px; height: 17px; }
+    .icon-button:active { background: var(--surface-soft); color: var(--ink); }
+    .icon-button.delete:active { color: var(--danger); background: #fbefed; }
+
+    .empty-state {
+      min-height: 190px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 15px 20px 35px;
+      animation: arrive .3s ease both;
+    }
+    .empty-art {
+      width: 70px;
+      height: 70px;
+      border-radius: 25px;
+      display: grid;
+      place-items: center;
+      background: #e9f0e8;
+      color: var(--accent);
+      margin-bottom: 17px;
+    }
+    .empty-art svg { width: 34px; height: 34px; }
+    .empty-title { margin: 0; font-size: 16px; font-weight: 740; letter-spacing: -.25px; }
+    .empty-copy { max-width: 245px; margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+    .composer-wrap {
+      flex: 0 0 auto;
+      padding: 11px 18px calc(12px + var(--safe-bottom));
+      background: linear-gradient(180deg, rgba(246,247,244,0), rgba(246,247,244,.96) 18%);
+    }
+    .composer {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 7px 6px 16px;
+      border: 1px solid #e2e8df;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(37, 55, 39, .09);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .composer:focus-within { border-color: #aac3af; box-shadow: 0 8px 25px rgba(37, 55, 39, .11), 0 0 0 3px rgba(61, 116, 87, .08); }
+    .composer-plus { color: #91a393; flex: 0 0 auto; width: 19px; height: 19px; }
+    .composer input {
+      width: 100%;
+      min-width: 0;
+      height: 40px;
+      border: 0;
+      outline: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .composer input::placeholder { color: #9ba298; }
+    .add-button {
+      min-width: 43px;
+      height: 43px;
+      border: 0;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: white;
+      background: var(--accent);
+      cursor: pointer;
+      transition: background .16s, transform .16s, opacity .16s;
+    }
+    .add-button svg { width: 20px; height: 20px; }
+    .add-button:active { transform: scale(.92); background: var(--accent-dark); }
+    .add-button:disabled { opacity: .43; cursor: default; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 18px 16px calc(18px + var(--safe-bottom));
+      background: rgba(24, 31, 25, .34);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .2s, visibility .2s;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .edit-sheet {
+      width: min(100%, 480px);
+      padding: 21px 19px 17px;
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 23px;
+      background: var(--bg);
+      box-shadow: 0 20px 60px rgba(0,0,0,.18);
+      transform: translateY(18px);
+      transition: transform .24s cubic-bezier(.2,.8,.2,1);
+    }
+    .modal-backdrop.open .edit-sheet { transform: translateY(0); }
+    .sheet-handle { width: 34px; height: 4px; border-radius: 3px; background: #d6dcd3; margin: -8px auto 18px; }
+    .sheet-title { margin: 0 0 14px; font-size: 19px; letter-spacing: -.45px; font-weight: 750; }
+    .edit-input {
+      width: 100%;
+      min-height: 52px;
+      resize: none;
+      border: 1px solid #dfe5dc;
+      border-radius: 14px;
+      padding: 14px;
+      outline: 0;
+      background: #fff;
+      color: var(--ink);
+      font-size: 15px;
+    }
+    .edit-input:focus { border-color: #9bb99f; box-shadow: 0 0 0 3px rgba(61,116,87,.08); }
+    .sheet-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .sheet-button {
+      min-height: 46px;
+      border: 0;
+      border-radius: 14px;
+      flex: 1;
+      font-size: 14px;
+      font-weight: 720;
+      cursor: pointer;
+    }
+    .sheet-button.cancel { background: #e9ede7; color: #596257; }
+    .sheet-button.save { background: var(--accent); color: #fff; }
+    .sheet-button:active { transform: scale(.98); }
+
+    @media (min-width: 600px) {
+      .topbar, .intro { padding-left: max(22px, calc((100% - 520px) / 2)); padding-right: max(22px, calc((100% - 520px) / 2)); }
+      .summary { width: min(calc(100% - 44px), 520px); align-self: center; }
+      .list-section { width: min(100%, 564px); align-self: center; }
+      .composer-wrap { width: min(100%, 564px); align-self: center; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="m5.5 12.4 4.1 4.1L18.7 7.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-name">Total List</div>
+      <div class="brand-caption">YOUR DAY, IN FOCUS</div>
+    </header>
+
+    <section class="intro" aria-label="Welcome">
+      <div class="eyebrow">A little more organized</div>
+      <h1>Make room for<br>what matters.</h1>
+      <p class="subtitle">One thing at a time. You’ve got this.</p>
+    </section>
+
+    <section class="summary" aria-label="Task summary">
+      <div class="stat">
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div><span class="stat-number" id="activeCount">0</span><span class="stat-label">To do</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon done" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div><span class="stat-number" id="completedCount">0</span><span class="stat-label">Completed</span></div>
+      </div>
+    </section>
+
+    <section class="list-section" aria-label="Your tasks">
+      <div class="list-heading">
+        <div class="section-title" id="listTitle">Your tasks</div>
+        <button class="clear-button" id="clearCompleted" type="button" hidden>Clear completed</button>
+      </div>
+      <nav class="filters" aria-label="Filter tasks">
+        <button class="filter active" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter" type="button" data-filter="active" aria-pressed="false">Active</button>
+        <button class="filter" type="button" data-filter="completed" aria-pressed="false">Completed</button>
+      </nav>
+      <div class="task-list" id="taskList" aria-live="polite"></div>
+    </section>
+
+    <div class="composer-wrap">
+      <form class="composer" id="addForm" autocomplete="off">
+        <svg class="composer-plus" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="newTask" type="text" maxlength="200" placeholder="Add a task…" aria-label="New task">
+        <button class="add-button" id="addButton" type="submit" aria-label="Add task" disabled>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="editModal" aria-hidden="true">
+    <section class="edit-sheet" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <h2 class="sheet-title" id="editTitle">Edit task</h2>
+      <form id="editForm">
+        <input class="edit-input" id="editInput" type="text" maxlength="200" aria-label="Edit task">
+        <div class="sheet-actions">
+          <button class="sheet-button cancel" id="cancelEdit" type="button">Cancel</button>
+          <button class="sheet-button save" type="submit">Save changes</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "total-list-tasks-v1";
+      const taskList = document.getElementById("taskList");
+      const activeCount = document.getElementById("activeCount");
+      const completedCount = document.getElementById("completedCount");
+      const newTaskInput = document.getElementById("newTask");
+      const addButton = document.getElementById("addButton");
+      const clearCompletedButton = document.getElementById("clearCompleted");
+      const filters = [...document.querySelectorAll(".filter")];
+      const modal = document.getElementById("editModal");
+      const editInput = document.getElementById("editInput");
+      let currentFilter = "all";
+      let editingId = null;
+      let tasks = loadTasks();
+
+      function loadTasks() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+          if (!Array.isArray(saved)) return [];
+          return saved.filter(item => item && typeof item.text === "string").map(item => ({
+            id: String(item.id || makeId()),
+            text: item.text.slice(0, 200),
+            completed: Boolean(item.completed)
+          }));
+        } catch (_) {
+          return [];
+        }
+      }
+
+      function makeId() {
+        return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+      }
+
+      function saveTasks() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch (_) {}
+      }
+
+      function icon(name) {
+        const paths = {
+          check: '<path d="m5 12.5 4.2 4.2L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>',
+          edit: '<path d="m15 5 4 4M4 20l4.2-.9L19 8.3a2.12 2.12 0 0 0-3-3L5.2 16.1 4 20Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+          trash: '<path d="M4.5 7h15M9 7V4.8h6V7m2.5 0-.8 13h-9.4L6.5 7m3.2 3.5v6m4.6-6v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+          empty: '<path d="M7 4.8h7l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 19V6.3A1.5 1.5 0 0 1 7.5 4.8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 5v4h4M9 13h6m-6 3h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'
+        };
+        return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' + paths[name] + '</svg>';
+      }
+
+      function render() {
+        const completed = tasks.filter(task => task.completed).length;
+        const active = tasks.length - completed;
+        activeCount.textContent = active;
+        completedCount.textContent = completed;
+        clearCompletedButton.hidden = completed === 0;
+
+        const shown = tasks.filter(task => currentFilter === "all" ||
+          (currentFilter === "active" && !task.completed) ||
+          (currentFilter === "completed" && task.completed));
+
+        taskList.replaceChildren();
+
+        if (!shown.length) {
+          const empty = document.createElement("div");
+          empty.className = "empty-state";
+          const title = currentFilter === "completed" ? "Nothing completed yet" :
+            currentFilter === "active" && tasks.length ? "All caught up!" : "Your list is a blank canvas";
+          const copy = currentFilter === "completed" ? "Finished tasks will find a home here." :
+            currentFilter === "active" && tasks.length ? "You’ve checked off everything on your list." :
+            "Add a task below and make your next step count.";
+          empty.innerHTML = '<div class="empty-art">' + icon("empty") + '</div>';
+          const heading = document.createElement("h2");
+          heading.className = "empty-title";
+          heading.textContent = title;
+          const description = document.createElement("p");
+          description.className = "empty-copy";
+          description.textContent = copy;
+          empty.append(heading, description);
+          taskList.appendChild(empty);
+          return;
+        }
+
+        shown.forEach(task => {
+          const card = document.createElement("article");
+          card.className = "task-card" + (task.completed ? " is-done" : "");
+          card.dataset.id = task.id;
+
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = "check-button";
+          toggle.dataset.action = "toggle";
+          toggle.setAttribute("aria-label", task.completed ? "Mark task active" : "Mark task complete");
+          toggle.setAttribute("aria-pressed", String(task.completed));
+          const circle = document.createElement("span");
+          circle.className = "check-circle";
+          circle.innerHTML = icon("check");
+          toggle.appendChild(circle);
+
+          const text = document.createElement("div");
+          text.className = "task-text";
+          text.textContent = task.text;
+
+          const actions = document.createElement("div");
+          actions.className = "task-actions";
+
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "icon-button";
+          edit.dataset.action = "edit";
+          edit.setAttribute("aria-label", "Edit " + task.text);
+          edit.innerHTML = icon("edit");
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "icon-button delete";
+          remove.dataset.action = "delete";
+          remove.setAttribute("aria-label", "Delete " + task.text);
+          remove.innerHTML = icon("trash");
+
+          actions.append(edit, remove);
+          card.append(toggle, text, actions);
+          taskList.appendChild(card);
+        });
+      }
+
+      document.getElementById("addForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const text = newTaskInput.value.trim();
+        if (!text) return;
+        tasks.unshift({ id: makeId(), text: text.slice(0, 200), completed: false });
+        saveTasks();
+        currentFilter = "all";
+        updateFilters();
+        render();
+        newTaskInput.value = "";
+        addButton.disabled = true;
+        newTaskInput.focus();
+      });
+
+      newTaskInput.addEventListener("input", () => {
+        addButton.disabled = !newTaskInput.value.trim();
+      });
+
+      function updateFilters() {
+        filters.forEach(button => {
+          const selected = button.dataset.filter === currentFilter;
+          button.classList.toggle("active", selected);
+          button.setAttribute("aria-pressed", String(selected));
+        });
+      }
+
+      filters.forEach(button => button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+        updateFilters();
+        render();
+      }));
+
+      taskList.addEventListener("click", event => {
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) return;
+        const card = actionButton.closest(".task-card");
+        if (!card) return;
+        const task = tasks.find(item => item.id === card.dataset.id);
+        if (!task) return;
+
+        switch (actionButton.dataset.action) {
+          case "toggle":
+            task.completed = !task.completed;
+            saveTasks();
+            render();
+            break;
+          case "edit":
+            editingId = task.id;
+            editInput.value = task.text;
+            modal.classList.add("open");
+            modal.setAttribute("aria-hidden", "false");
+            setTimeout(() => {
+              editInput.focus();
+              editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+            }, 80);
+            break;
+          case "delete":
+            tasks = tasks.filter(item => item.id !== task.id);
+            saveTasks();
+            render();
+            break;
+        }
+      });
+
+      function closeEdit() {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+        editingId = null;
+      }
+
+      document.getElementById("editForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const text = editInput.value.trim();
+        if (!text || !editingId) return;
+        const task = tasks.find(item => item.id === editingId);
+        if (task) {
+          task.text = text.slice(0, 200);
+          saveTasks();
+          render();
+        }
+        closeEdit();
+      });
+
+      document.getElementById("cancelEdit").addEventListener("click", closeEdit);
+      modal.addEventListener("click", event => {
+        if (event.target === modal) closeEdit();
+      });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && modal.classList.contains("open")) closeEdit();
+      });
+
+      clearCompletedButton.addEventListener("click", () => {
+        tasks = tasks.filter(task => !task.completed);
+        saveTasks();
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
